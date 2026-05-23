@@ -57,9 +57,6 @@
     settingsObserverAttached: false,
     initialResponsePatched: false,
     xhrPatched: false,
-    xhrRestoreTimer: null,
-    originalXhrOpen: null,
-    originalXhrSend: null,
     initTimer: null,
   };
   window[STATE_KEY] = state;
@@ -73,7 +70,11 @@
   }
 
   function init() {
+    ensureLocalTrack();
     ensureFileInput();
+    patchLocalTimedtextXhr();
+    patchInitialPlayerResponseSetter();
+    injectKnownPlayerResponses();
     setupSettingsObserver();
   }
 
@@ -122,7 +123,6 @@
     ensureLocalTrack();
     state.track = createLocalCaptionTrack();
 
-    installLocalTimedtextXhr(15000);
     injectKnownPlayerResponses();
     refreshNativeCaptionTracklist();
     updateMenuStatus();
@@ -171,51 +171,38 @@
     return url.toString();
   }
 
-  function installLocalTimedtextXhr(durationMs) {
-    if (typeof XMLHttpRequest === 'undefined') return;
+  function patchLocalTimedtextXhr() {
+    if (state.xhrPatched || typeof XMLHttpRequest === 'undefined') return;
 
-    if (!state.xhrPatched) {
-      state.originalXhrOpen = XMLHttpRequest.prototype.open;
-      state.originalXhrSend = XMLHttpRequest.prototype.send;
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
 
-      XMLHttpRequest.prototype.open = function patchedOpen(method, url) {
-        this._tmLocalSubtitleUrl = isLocalTimedtextUrl(url) ? String(url) : '';
-        return state.originalXhrOpen.apply(this, arguments);
-      };
+    XMLHttpRequest.prototype.open = function patchedOpen(method, url) {
+      this._tmLocalSubtitleUrl = isLocalTimedtextUrl(url) ? String(url) : '';
+      return originalOpen.apply(this, arguments);
+    };
 
-      XMLHttpRequest.prototype.send = function patchedSend() {
-        if (!this._tmLocalSubtitleUrl) return state.originalXhrSend.apply(this, arguments);
+    XMLHttpRequest.prototype.send = function patchedSend() {
+      if (!this._tmLocalSubtitleUrl) return originalSend.apply(this, arguments);
 
-        const xhr = this;
-        const body = makeLocalTimedtextResponse(xhr._tmLocalSubtitleUrl);
-        defineGetter(xhr, 'readyState', 4);
-        defineGetter(xhr, 'status', 200);
-        defineGetter(xhr, 'statusText', 'OK');
-        defineGetter(xhr, 'responseURL', xhr._tmLocalSubtitleUrl);
-        defineGetter(xhr, 'responseText', body);
-        defineGetter(xhr, 'response', body);
+      const xhr = this;
+      const body = makeLocalTimedtextResponse(xhr._tmLocalSubtitleUrl);
+      defineGetter(xhr, 'readyState', 4);
+      defineGetter(xhr, 'status', 200);
+      defineGetter(xhr, 'statusText', 'OK');
+      defineGetter(xhr, 'responseURL', xhr._tmLocalSubtitleUrl);
+      defineGetter(xhr, 'responseText', body);
+      defineGetter(xhr, 'response', body);
 
-        setTimeout(() => {
-          fireXhrEvent(xhr, 'readystatechange');
-          fireXhrEvent(xhr, 'load');
-          fireXhrEvent(xhr, 'loadend');
-        }, 0);
-        return undefined;
-      };
+      setTimeout(() => {
+        fireXhrEvent(xhr, 'readystatechange');
+        fireXhrEvent(xhr, 'load');
+        fireXhrEvent(xhr, 'loadend');
+      }, 0);
+      return undefined;
+    };
 
-      state.xhrPatched = true;
-    }
-
-    if (state.xhrRestoreTimer) clearTimeout(state.xhrRestoreTimer);
-    state.xhrRestoreTimer = setTimeout(restoreLocalTimedtextXhr, durationMs || 10000);
-  }
-
-  function restoreLocalTimedtextXhr() {
-    if (!state.xhrPatched || typeof XMLHttpRequest === 'undefined') return;
-    if (state.originalXhrOpen) XMLHttpRequest.prototype.open = state.originalXhrOpen;
-    if (state.originalXhrSend) XMLHttpRequest.prototype.send = state.originalXhrSend;
-    state.xhrPatched = false;
-    state.xhrRestoreTimer = null;
+    state.xhrPatched = true;
   }
 
   function isLocalTimedtextUrl(rawUrl) {
@@ -400,7 +387,6 @@
       state.retryTimer = null;
     }
 
-    installLocalTimedtextXhr(10000);
     refreshNativeCaptionTracklist();
     forceCaptionButtonOn();
     clearNativeCaptionTrack();
@@ -721,13 +707,17 @@
     return String(value).padStart(2, '0');
   }
 
+  patchLocalTimedtextXhr();
+  patchInitialPlayerResponseSetter();
+  injectKnownPlayerResponses();
+
   onReady(init);
   window.addEventListener('yt-navigate-start', () => {
     state.cues = [];
     state.filename = '';
-    state.track = null;
-    restoreLocalTimedtextXhr();
+    state.track = createLocalCaptionTrack();
     updateMenuStatus();
   }, true);
   window.addEventListener('yt-navigate-finish', () => setTimeout(init, 800), true);
+  state.initTimer = state.initTimer || setInterval(init, 3000);
 })();
