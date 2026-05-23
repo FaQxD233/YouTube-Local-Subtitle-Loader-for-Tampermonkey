@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         YouTube 本地字幕 - 原生 CC 注入
+// @name         YouTube Local Subtitles - Native CC Subtitle Injection
 // @version      1.0
-// @description  从本地加载 SRT/VTT 字幕，并作为 YouTube 原生 CC 字幕轨道注入；不创建独立字幕层，不隐藏原生字幕层。
+// @description  Load local SRT/VTT subtitles and inject them as a YouTube native CC track without creating a separate subtitle layer or hiding the native subtitle layer.
 // @match        https://www.youtube.com/watch*
 // @match        https://www.youtube.com/*&v=*
 // @run-at       document-start
