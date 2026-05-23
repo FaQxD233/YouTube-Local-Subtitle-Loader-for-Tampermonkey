@@ -1,7 +1,14 @@
 // ==UserScript==
-// @name         YouTube 本地字幕 - 原生 CC 注入
+// @name         YouTube 本地字幕 - 注入原生CC字幕
+// @name:en      YouTube Local Subtitles - Native CC Subtitle Injection
+// @name:zh-CN   YouTube 本地字幕 - 注入原生CC字幕
+// @name:zh-TW   YouTube 本地字幕 - 注入原生CC字幕
+// @namespace    https://github.com/FaQxD233/YouTube-Local-Subtitle-Loader-for-Tampermonkey
 // @version      1.0
-// @description  从本地加载 SRT/VTT 字幕，并作为 YouTube 原生 CC 字幕轨道注入；不创建独立字幕层，不隐藏原生字幕层。
+// @description  从本地加载 SRT/VTT 字幕，并将其注入为 YouTube 原生 CC 字幕轨道，不创建独立字幕层，也不隐藏原生字幕层。
+// @description:en  Load local SRT/VTT subtitles and inject them as a YouTube native CC track without creating a separate subtitle layer or hiding the native subtitle layer.
+// @description:zh-CN  从本地加载 SRT/VTT 字幕，并将其注入为 YouTube 原生 CC 字幕轨道，不创建独立字幕层，也不隐藏原生字幕层。
+// @description:zh-TW  載入本地 SRT/VTT 字幕，並將其注入為 YouTube 原生 CC 字幕軌道，不建立獨立字幕層，也不隱藏原生字幕層。
 // @match        https://www.youtube.com/watch*
 // @match        https://www.youtube.com/*&v=*
 // @run-at       document-start
