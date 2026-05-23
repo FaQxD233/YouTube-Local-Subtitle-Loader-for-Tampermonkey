@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YouTube 本地字幕 - 注入原生CC字幕
+// @name         YouTube Local Subtitles - Native CC Subtitle Injection
 // @name:en      YouTube Local Subtitles - Native CC Subtitle Injection
 // @name:zh-CN   YouTube 本地字幕 - 注入原生CC字幕
 // @name:zh-TW   YouTube 本地字幕 - 注入原生CC字幕
