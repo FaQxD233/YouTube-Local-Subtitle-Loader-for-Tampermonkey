@@ -1,13 +1,19 @@
-基于Tampermonkey的YouTube字幕插件，可以将本地.srt字幕加载到播放器内
+# YouTube Local Subtitles
 
-greasyfork链接：
+[中文说明](./README.zh-CN.md)
+
+Greasy Fork:
 
 https://greasyfork.org/zh-CN/scripts/547019-youtube-local-subtitle-loader
 
-让gemini花了5分钟写出来的代码，可能有bug，但我不会写这个，只能说能跑就行（
+Load local subtitle in YouTube and inject into "CC Subtitle Selector",
 
-理论上打开youtube就会有个加载字幕按钮在播放器下面那行最右边
+You may choose between the original subtitles and the subtitle you uploaded.
 
-起因是想在没有自动cc字幕的视频里加载字幕，但是不知道怎么调用cc字幕，就直接另外单独渲染了
+Chinese and English available, auto determined by browser language
 
-用opencode和gpt5.5又优化了一下，现在最新版可以直接注入到CC字幕选择器中，可以在cc字幕选择器中切换视频本来有的字幕和本地字幕，自动在英语和中文中选择，由浏览器语言决定
+This script may trigger YouTube's Anti Adblock System so you may encounter 6second sponsor AD before videos.
+
+I can't inject the subtitle into the CC Subtitle selector without modify playerResponse/ytInitialPlayerResponse so i think it's inevitable temporarily.
+
+v1.1 try to skip the 6s "fake ad"
